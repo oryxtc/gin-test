@@ -2,7 +2,6 @@ package app
 
 import (
 	"errors"
-	"reflect"
 
 	"gorm.io/gorm/logger"
 
@@ -14,6 +13,9 @@ import (
 
 var engine *gin.Engine
 
+/**
+获取gin实例
+*/
 func GetEngine() *gin.Engine {
 	if engine == nil {
 		engine = gin.New()
@@ -21,6 +23,9 @@ func GetEngine() *gin.Engine {
 	return engine
 }
 
+/**
+获取数据库实例
+*/
 func GetDb() *gorm.DB {
 	db, err := gorm.Open(mysql.New(mysql.Config{
 		DSN:                       "root:oryxtc123456@tcp(localhost:3306)/lsh_vss?&parseTime=True&loc=Local", // DSN data source name
@@ -35,15 +40,4 @@ func GetDb() *gorm.DB {
 		errors.New(err.Error())
 	}
 	return db
-}
-
-func Struct2Map(obj interface{}) map[string]interface{} {
-	t := reflect.TypeOf(obj)
-	v := reflect.ValueOf(obj)
-
-	var data = make(map[string]interface{})
-	for i := 0; i < t.NumField(); i++ {
-		data[t.Field(i).Name] = v.Field(i).Interface()
-	}
-	return data
 }

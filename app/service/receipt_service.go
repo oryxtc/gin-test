@@ -7,7 +7,7 @@ import (
 
 //校验请求数据
 type GetReceiptAndReturnInput struct {
-	SettleId string `form:"settle_id,omitempty" json:"settle_id,omitempty" `
+	SettleId string `form:"settle_id,omitempty" json:"settle_id,omitempty" binding:"required" `
 	FinCode  string `form:"fin_code,omitempty"`
 	Vid      string `json:"vid,omitempty"`
 	Pn       int    `form:"pn,omitempty" json:",omitempty"`
@@ -17,7 +17,7 @@ type GetReceiptAndReturnInput struct {
 /**
 获取收货和退货数据
 */
-func GetReceiptAndReturnData(p GetReceiptAndReturnInput) ([]map[string]interface{}, int64) {
+func GetReceiptAndReturnData(p GetReceiptAndReturnInput) ([]map[string]interface{}, int) {
 	var where []string
 	var whereSql string
 	binds := make(map[string]interface{}, 0)
@@ -56,8 +56,8 @@ func GetReceiptAndReturnData(p GetReceiptAndReturnInput) ([]map[string]interface
 		panic(err.Error())
 	}
 	//获取总条数
-	var total int64
-	if err := db.Raw(sql, binds).Count(&total).Error; err != nil {
+	var total int
+	if err := db.Raw("select FOUND_ROWS();", binds).Find(&total).Error; err != nil {
 		panic(err)
 	}
 	return list, total
