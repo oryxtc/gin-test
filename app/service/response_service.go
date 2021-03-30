@@ -34,3 +34,10 @@ func (r ResponseData) Json(c *gin.Context) {
 	res := ResponseData{Code: r.Code, Data: r.Data, Message: r.Message}
 	c.JSON(httpCode, res)
 }
+
+/*
+实现error 接口
+*/
+func (r ResponseData) Error() string {
+	return r.Message
+}

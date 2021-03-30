@@ -3,26 +3,26 @@ package service
 import (
 	"strings"
 	"vss/app"
+	"vss/app/model"
 )
 
 //校验请求数据
 type GetReceiptAndReturnInput struct {
-	SettleId string `form:"settle_id,omitempty" json:"settle_id,omitempty" binding:"required" `
-	FinCode  string `form:"fin_code,omitempty"`
-	Vid      string `json:"vid,omitempty"`
-	Pn       int    `form:"pn,omitempty" json:",omitempty"`
-	Rn       int    `form:"rn,omitempty"`
+	SettleId string `form:"settle_id" json:"settle_id"`
+	FinCode  string `form:"fin_code" json:"fin_code"`
+	Vid      string `form:"vid" json:"vid"`
+	Pn       int    `form:"pn" json:"pn"`
+	Rn       int    `form:"rn" json:"rn"`
 }
 
 /**
 获取收货和退货数据
 */
-func GetReceiptAndReturnData(p GetReceiptAndReturnInput) ([]map[string]interface{}, int) {
+func GetReceiptAndReturnData(p GetReceiptAndReturnInput) (list []map[string]interface{}, total int, err error) {
 	var where []string
 	var whereSql string
 	binds := make(map[string]interface{}, 0)
 	binds["venderId"] = 10005
-	//var binds []interface{}
 	db := app.GetDb()
 	if p.SettleId != "" {
 		where = append(where, "settle_id=@settleId")
@@ -42,23 +42,22 @@ func GetReceiptAndReturnData(p GetReceiptAndReturnInput) ([]map[string]interface
 		") a"
 	sql += whereSql
 	//拼接limit
-	if p.Rn > 0 {
-		sql += " Limit @rn "
-		binds["rn"] = p.Rn
+	if p.Rn == 0 {
+		p.Rn = 4
 	}
+	sql += " Limit @rn "
+	binds["rn"] = p.Rn
 	if p.Pn > 0 {
 		sql += " Offset @pn "
 		binds["pn"] = p.Pn
 	}
 	//获取数据
-	list := make([]map[string]interface{}, 0)
-	if err := db.Raw(sql, binds).Find(&list).Error; err != nil {
-		panic(err.Error())
+	if err = db.Raw(sql, binds).Find(&list).Error; err != nil {
+		return
 	}
 	//获取总条数
-	var total int
-	if err := db.Raw("select FOUND_ROWS();", binds).Find(&total).Error; err != nil {
-		panic(err)
+	if err = model.GetFoundRows(db, &total); err != nil {
+		return
 	}
-	return list, total
+	return
 }

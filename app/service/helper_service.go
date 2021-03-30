@@ -1,6 +1,11 @@
 package service
 
-import "reflect"
+import (
+	"reflect"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
+)
 
 /**
 struct转map
@@ -21,9 +26,15 @@ func ErrorToString(r interface{}) string {
 	switch v := r.(type) {
 	case error:
 		return v.Error()
+	case int:
+		return strconv.Itoa(v)
 	case nil:
 		return ""
 	default:
 		return v.(string)
 	}
+}
+
+func GetLastErr(c *gin.Context) error {
+	return c.Errors.Last().Err
 }
