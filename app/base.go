@@ -1,8 +1,6 @@
 package app
 
 import (
-	"errors"
-
 	"gorm.io/gorm/logger"
 
 	"gorm.io/driver/mysql"
@@ -37,7 +35,7 @@ func GetDb() *gorm.DB {
 	}), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
 	//抛出异常
 	if err != nil {
-		errors.New(err.Error())
+		panic(err.Error())
 	}
 	return db
 }
